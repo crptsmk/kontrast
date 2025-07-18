@@ -250,7 +250,7 @@ html {
 
 /* Service card specific styles */
 .service-card {
-  @apply bg-gray-900 p-8 rounded-lg transition-all duration-300 hover:bg-gray-800 group cursor-pointer;
+  @apply bg-gray-900 p-8 rounded-lg transition-all duration-300 hover:bg-gray-800 cursor-pointer;
 }
 
 .service-card:hover {
