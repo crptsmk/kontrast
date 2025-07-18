@@ -107,75 +107,93 @@ user_problem_statement: "Build Moscow Graffiti Studio website with portfolio, se
 backend:
   - task: "Portfolio API endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented portfolio endpoints with CRUD operations, categories, and image handling"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/portfolio returns 6 portfolio items with correct structure (id, title, category, image, description). GET /api/portfolio/categories returns all expected categories: abstract, automotive, commercial, murals, portraits. All endpoints working perfectly."
 
   - task: "Services API endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented services endpoints with real business data from VK page"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/services returns 6 services with proper structure and Russian pricing (₽). All required fields present: id, title, description, price, icon. Real business data from VK page confirmed."
 
   - task: "Contact form API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented contact form submission (SMTP/Telegram integration pending)"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/contact accepts all required fields (name, phone, email, message) and returns proper Russian success message: 'Спасибо за обращение! Мы свяжемся с вами в ближайшее время.' Form submission working correctly."
 
   - task: "Price calculator API"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented price calculation with tier-based pricing and area discounts"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/calculate-price working perfectly with all 3 tiers (basic/standard/premium). Discount logic verified: 0% for ≤20m², 5% for 21-50m², 10% for >50m². Proper error handling for invalid tiers. All test cases passed."
 
   - task: "Content management APIs"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented testimonials, FAQs, and process steps endpoints"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All content APIs working perfectly. GET /api/testimonials returns 3 testimonials with Russian names and content. GET /api/faqs returns 4 FAQs with proper structure. GET /api/process returns 5 process steps in correct order (1-5). All endpoints return proper JSON arrays."
 
   - task: "Data seeding endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented seed data endpoint with real business information and high-quality images"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/seed-data working perfectly. Successfully populates database with real business data including 6 portfolio projects, 6 services, 3 testimonials, 4 FAQs, and 5 process steps. Returns Russian success message: 'Данные успешно загружены'. Critical for database initialization."
 
 frontend:
   - task: "Modern responsive design"
