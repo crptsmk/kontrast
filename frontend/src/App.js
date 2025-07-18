@@ -316,7 +316,7 @@ const Services = () => {
               const IconComponent = iconMap[service.icon] || Palette;
               return (
                 <div key={service.id} className="bg-gray-900 p-8 rounded-lg hover:bg-gray-800 transition-colors group">
-                  <div className="w-16 h-16 bg-yellow-400 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-yellow-400 rounded-lg flex items-center justify-center mb-6 service-icon">
                     <IconComponent className="w-8 h-8 text-black" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">{service.title}</h3>
