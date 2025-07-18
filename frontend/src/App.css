@@ -257,6 +257,10 @@ html {
   box-shadow: 0 25px 50px -12px rgba(250, 204, 21, 0.25);
 }
 
+.service-card .service-icon {
+  @apply group-hover:scale-110 transition-transform;
+}
+
 /* Process step connector */
 .process-connector {
   @apply absolute left-8 top-16 w-px h-12 bg-gray-700;
