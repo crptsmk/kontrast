@@ -641,7 +641,11 @@ const Testimonials = () => {
     try {
       const response = await fetch(`${API}/faqs`);
       const data = await response.json();
-      setFaqs(data);
+      // Remove duplicates based on question
+      const uniqueFaqs = data.filter((faq, index, self) => 
+        index === self.findIndex(f => f.question === faq.question)
+      );
+      setFaqs(uniqueFaqs);
     } catch (error) {
       console.error('Error fetching FAQs:', error);
     } finally {
