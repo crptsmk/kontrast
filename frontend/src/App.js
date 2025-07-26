@@ -440,19 +440,30 @@ const PriceCalculator = () => {
   };
 
   return (
-    <section id="calculator" className="py-20 bg-gray-900">
-      <div className="container mx-auto px-4">
+    <section id="calculator" className="relative py-20 overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_graffiti-studio/artifacts/vjhnryf0_u7332619193_A_vibrant_urban_graffiti_mural_with_the_word_text_356fdc1f-f557-4296-b805-6c059c645737_0.png)'
+        }}
+      >
+        <div className="absolute inset-0 bg-black/80"></div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Калькулятор <span className="text-yellow-400">Стоимости</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Рассчитайте предварительную стоимость вашего проекта
           </p>
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <div className="bg-black p-8 rounded-lg">
+          <div className="bg-black/90 backdrop-blur-sm p-8 rounded-lg border border-yellow-400/20">
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div>
                 <label className="block text-white font-semibold mb-2">Площадь (м²)</label>
@@ -461,7 +472,7 @@ const PriceCalculator = () => {
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
                   placeholder="Введите площадь"
-                  className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full p-4 bg-gray-800/80 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-gray-600"
                 />
               </div>
               <div>
@@ -469,7 +480,7 @@ const PriceCalculator = () => {
                 <select
                   value={tier}
                   onChange={(e) => setTier(e.target.value)}
-                  className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="w-full p-4 bg-gray-800/80 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-gray-600"
                 >
                   {Object.entries(tierOptions).map(([key, option]) => (
                     <option key={key} value={key}>
@@ -482,7 +493,7 @@ const PriceCalculator = () => {
 
             <div className="mb-6">
               <h3 className="text-white font-semibold mb-2">Описание уровня:</h3>
-              <p className="text-gray-400">{tierOptions[tier].description}</p>
+              <p className="text-gray-300">{tierOptions[tier].description}</p>
             </div>
 
             <button
@@ -501,7 +512,7 @@ const PriceCalculator = () => {
             </button>
 
             {calculation && (
-              <div className="mt-8 p-6 bg-gray-800 rounded-lg">
+              <div className="mt-8 p-6 bg-gray-800/90 rounded-lg border border-yellow-400/30">
                 <h3 className="text-xl font-bold text-white mb-4">Результат расчёта:</h3>
                 <div className="space-y-2 text-gray-300">
                   <div className="flex justify-between">
