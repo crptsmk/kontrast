@@ -913,7 +913,7 @@ function App() {
 
     // Scroll spy for active section
     const handleScroll = () => {
-      const sections = ['hero', 'portfolio', 'services', 'calculator', 'process', 'testimonials', 'contact'];
+      const sections = ['hero', 'about', 'portfolio', 'services', 'calculator', 'process', 'testimonials', 'contact'];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
