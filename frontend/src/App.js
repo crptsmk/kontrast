@@ -177,7 +177,11 @@ const Portfolio = () => {
     try {
       const response = await fetch(`${API}/portfolio`);
       const data = await response.json();
-      setProjects(data);
+      // Remove duplicates based on title and category
+      const uniqueProjects = data.filter((project, index, self) => 
+        index === self.findIndex(p => p.title === project.title && p.category === project.category)
+      );
+      setProjects(uniqueProjects);
     } catch (error) {
       console.error('Error fetching portfolio:', error);
     } finally {
