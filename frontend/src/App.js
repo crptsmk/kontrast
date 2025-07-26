@@ -351,7 +351,11 @@ const Services = () => {
     try {
       const response = await fetch(`${API}/services`);
       const data = await response.json();
-      setServices(data);
+      // Remove duplicates based on title
+      const uniqueServices = data.filter((service, index, self) => 
+        index === self.findIndex(s => s.title === service.title)
+      );
+      setServices(uniqueServices);
     } catch (error) {
       console.error('Error fetching services:', error);
     } finally {
