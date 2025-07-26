@@ -47,9 +47,9 @@ const Header = ({ activeSection, setActiveSection }) => {
   
   const navigation = [
     { name: 'Главная', href: 'hero' },
+    { name: 'О нас', href: 'about' },
     { name: 'Портфолио', href: 'portfolio' },
     { name: 'Услуги', href: 'services' },
-    { name: 'Процесс', href: 'process' },
     { name: 'Контакты', href: 'contact' }
   ];
 
