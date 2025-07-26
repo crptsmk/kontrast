@@ -627,7 +627,11 @@ const Testimonials = () => {
     try {
       const response = await fetch(`${API}/testimonials`);
       const data = await response.json();
-      setTestimonials(data);
+      // Remove duplicates based on name and text
+      const uniqueTestimonials = data.filter((testimonial, index, self) => 
+        index === self.findIndex(t => t.name === testimonial.name && t.text === testimonial.text)
+      );
+      setTestimonials(uniqueTestimonials);
     } catch (error) {
       console.error('Error fetching testimonials:', error);
     }
