@@ -552,7 +552,11 @@ const Process = () => {
     try {
       const response = await fetch(`${API}/process`);
       const data = await response.json();
-      setSteps(data);
+      // Remove duplicates based on step number and title
+      const uniqueSteps = data.filter((step, index, self) => 
+        index === self.findIndex(s => s.step === step.step && s.title === step.title)
+      );
+      setSteps(uniqueSteps);
     } catch (error) {
       console.error('Error fetching process:', error);
     } finally {
