@@ -937,6 +937,7 @@ function App() {
       <Header activeSection={activeSection} setActiveSection={setActiveSection} />
       <main>
         <Hero />
+        <About />
         <Portfolio />
         <Services />
         <PriceCalculator />
