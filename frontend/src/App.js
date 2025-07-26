@@ -272,7 +272,68 @@ const Portfolio = () => {
   );
 };
 
-// Services Section
+// About Section with Video
+const About = () => {
+  return (
+    <section id="about" className="py-20 bg-gray-900">
+      <div className="container mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Video Section */}
+          <div className="relative">
+            <div className="aspect-video rounded-lg overflow-hidden bg-black">
+              <iframe 
+                src="https://vk.com/video_ext.php?oid=-28179884&id=456239025&hd=3&autoplay=0" 
+                width="100%" 
+                height="100%" 
+                allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" 
+                frameBorder="0" 
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            </div>
+          </div>
+          
+          {/* Content Section */}
+          <div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              О студии <span className="text-yellow-400">Контраст</span>
+            </h2>
+            <div className="space-y-4 text-gray-300 text-lg">
+              <p>
+                Мы — команда профессиональных художников граффити и стрит-арта с многолетним опытом работы по всей России.
+              </p>
+              <p>
+                Наша студия специализируется на создании уникальных художественных проектов любой сложности — от небольших интерьерных работ до масштабных муралов.
+              </p>
+              <p>
+                Мы используем только качественные материалы и предоставляем гарантию до 5 лет на все виды работ.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6 mt-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400 mb-2">500+</div>
+                <div className="text-gray-400">Выполненных проектов</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400 mb-2">5 лет</div>
+                <div className="text-gray-400">Гарантия качества</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400 mb-2">85</div>
+                <div className="text-gray-400">Регионов России</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400 mb-2">100%</div>
+                <div className="text-gray-400">Довольных клиентов</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
