@@ -150,10 +150,10 @@ const Hero = () => {
             <ArrowRight className="w-5 h-5" />
           </button>
           <button 
-            onClick={() => document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
             className="border-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black font-semibold py-4 px-8 rounded-full transition-colors"
           >
-            Посмотреть работы
+            Узнать больше
           </button>
         </div>
       </div>
