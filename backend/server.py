@@ -198,14 +198,14 @@ async def get_process_steps():
 # Seed data endpoint (for development)
 @api_router.post("/seed-data")
 async def seed_data():
-    # Clear existing data
+    # Clear existing data completely
     await db.portfolio.delete_many({})
     await db.services.delete_many({})
     await db.testimonials.delete_many({})
     await db.faqs.delete_many({})
     await db.process_steps.delete_many({})
     
-    # Sample portfolio projects with real images
+    # Sample portfolio projects with real images (NO DUPLICATES)
     portfolio_projects = [
         {
             "id": str(uuid.uuid4()),
@@ -263,7 +263,7 @@ async def seed_data():
         }
     ]
     
-    # Services based on real VK data
+    # Services based on real VK data (NO DUPLICATES)
     services = [
         {
             "id": str(uuid.uuid4()),
