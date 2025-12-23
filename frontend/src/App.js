@@ -1,27 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
-import { 
-  Palette, 
-  Brush, 
-  Building, 
-  Car, 
-  Camera, 
+import {
+  Palette,
+  Brush,
+  Building,
+  Car,
+  Camera,
   Megaphone,
   MessageSquare,
   CheckCircle,
   Star,
   Phone,
-  Mail,
   MapPin,
-  Filter,
   Calculator,
-  Users,
   Award,
   ArrowRight,
   Menu,
   X,
-  ChevronDown,
-  Send
+  Send,
+  AlertCircle
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -44,7 +41,7 @@ const iconMap = {
 // Header Component
 const Header = ({ activeSection, setActiveSection }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const navigation = [
     { name: 'Главная', href: 'hero' },
     { name: 'О нас', href: 'about' },
@@ -53,10 +50,28 @@ const Header = ({ activeSection, setActiveSection }) => {
     { name: 'Контакты', href: 'contact' }
   ];
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMenuOpen]);
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
       setActiveSection(sectionId);
     }
     setIsMenuOpen(false);
@@ -142,15 +157,31 @@ const Hero = () => {
           Осуществляем выезд и берём заказы по всей России!
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button 
-            onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+          <button
+            onClick={() => {
+              const element = document.getElementById('contact');
+              if (element) {
+                const headerOffset = 80;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+              }
+            }}
             className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-4 px-8 rounded-full transition-colors flex items-center justify-center space-x-2"
           >
             <span>Заказать проект</span>
             <ArrowRight className="w-5 h-5" />
           </button>
-          <button 
-            onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
+          <button
+            onClick={() => {
+              const element = document.getElementById('about');
+              if (element) {
+                const headerOffset = 80;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+              }
+            }}
             className="border-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black font-semibold py-4 px-8 rounded-full transition-colors"
           >
             Узнать больше
@@ -167,6 +198,7 @@ const Portfolio = () => {
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchPortfolio();
@@ -176,14 +208,16 @@ const Portfolio = () => {
   const fetchPortfolio = async () => {
     try {
       const response = await fetch(`${API}/portfolio`);
+      if (!response.ok) throw new Error('Не удалось загрузить портфолио');
       const data = await response.json();
-      // Remove duplicates based on title and category
-      const uniqueProjects = data.filter((project, index, self) => 
+      const uniqueProjects = data.filter((project, index, self) =>
         index === self.findIndex(p => p.title === project.title && p.category === project.category)
       );
       setProjects(uniqueProjects);
+      setError(null);
     } catch (error) {
       console.error('Error fetching portfolio:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -192,6 +226,7 @@ const Portfolio = () => {
   const fetchCategories = async () => {
     try {
       const response = await fetch(`${API}/portfolio/categories`);
+      if (!response.ok) throw new Error('Не удалось загрузить категории');
       const data = await response.json();
       setCategories(['all', ...data.categories]);
     } catch (error) {
@@ -247,15 +282,35 @@ const Portfolio = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
             <p className="text-gray-400 mt-4">Загрузка портфолио...</p>
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-white font-semibold mb-2">Ошибка загрузки</h3>
+            <p className="text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={fetchPortfolio}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-full transition-colors"
+            >
+              Попробовать снова
+            </button>
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">Проекты в этой категории пока не добавлены</p>
+          </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map(project => (
               <div key={project.id} className="group relative overflow-hidden rounded-lg bg-gray-800 hover:transform hover:scale-105 transition-all duration-300">
                 <div className="aspect-square">
-                  <img 
-                    src={project.image} 
+                  <img
+                    src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1487452066049-a710f7296400?w=400&h=400&fit=crop';
+                    }}
                   />
                 </div>
                 <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -342,6 +397,7 @@ const About = () => {
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchServices();
@@ -350,14 +406,16 @@ const Services = () => {
   const fetchServices = async () => {
     try {
       const response = await fetch(`${API}/services`);
+      if (!response.ok) throw new Error('Не удалось загрузить услуги');
       const data = await response.json();
-      // Remove duplicates based on title
-      const uniqueServices = data.filter((service, index, self) => 
+      const uniqueServices = data.filter((service, index, self) =>
         index === self.findIndex(s => s.title === service.title)
       );
       setServices(uniqueServices);
+      setError(null);
     } catch (error) {
       console.error('Error fetching services:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -380,13 +438,29 @@ const Services = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
             <p className="text-gray-400 mt-4">Загрузка услуг...</p>
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-white font-semibold mb-2">Ошибка загрузки</h3>
+            <p className="text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={fetchServices}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-full transition-colors"
+            >
+              Попробовать снова
+            </button>
+          </div>
+        ) : services.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">Услуги временно не доступны</p>
+          </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map(service => {
               const IconComponent = iconMap[service.icon] || Palette;
               return (
                 <div key={service.id} className="bg-gray-900 p-8 rounded-lg hover:bg-gray-800 transition-colors group">
-                  <div className="w-16 h-16 bg-yellow-400 rounded-lg flex items-center justify-center mb-6 service-icon">
+                  <div className="w-16 h-16 bg-yellow-400 rounded-lg flex items-center justify-center mb-6 transition-transform group-hover:scale-110">
                     <IconComponent className="w-8 h-8 text-black" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">{service.title}</h3>
@@ -413,21 +487,28 @@ const PriceCalculator = () => {
   const [tier, setTier] = useState('basic');
   const [calculation, setCalculation] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const calculatePrice = async () => {
-    if (!area || area <= 0) return;
-    
+    if (!area || area <= 0) {
+      setError('Пожалуйста, введите корректную площадь');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch(`${API}/calculate-price`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ area: parseFloat(area), tier })
       });
+      if (!response.ok) throw new Error('Не удалось рассчитать стоимость');
       const data = await response.json();
       setCalculation(data);
     } catch (error) {
       console.error('Error calculating price:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -470,8 +551,14 @@ const PriceCalculator = () => {
                 <input
                   type="number"
                   value={area}
-                  onChange={(e) => setArea(e.target.value)}
+                  onChange={(e) => {
+                    setArea(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="Введите площадь"
+                  min="0.1"
+                  max="10000"
+                  step="0.1"
                   className="w-full p-4 bg-gray-800/80 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-gray-600"
                 />
               </div>
@@ -496,10 +583,17 @@ const PriceCalculator = () => {
               <p className="text-gray-300">{tierOptions[tier].description}</p>
             </div>
 
+            {error && (
+              <div className="mb-6 p-4 bg-red-900/50 border border-red-500 rounded-lg flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <p className="text-red-200">{error}</p>
+              </div>
+            )}
+
             <button
               onClick={calculatePrice}
               disabled={!area || loading}
-              className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-600 text-black font-semibold py-4 px-8 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-semibold py-4 px-8 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
@@ -521,10 +615,10 @@ const PriceCalculator = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Цена за м²:</span>
-                    <span>{calculation.breakdown.base_price_per_m2} ₽</span>
+                    <span>{calculation.breakdown.base_price_per_m2.toLocaleString()} ₽</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Подитог:</span>
+                    <span>Подытог:</span>
                     <span>{calculation.breakdown.subtotal.toLocaleString()} ₽</span>
                   </div>
                   {calculation.breakdown.discount > 0 && (
@@ -554,6 +648,7 @@ const PriceCalculator = () => {
 const Process = () => {
   const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchProcess();
@@ -562,14 +657,16 @@ const Process = () => {
   const fetchProcess = async () => {
     try {
       const response = await fetch(`${API}/process`);
+      if (!response.ok) throw new Error('Не удалось загрузить информацию о процессе');
       const data = await response.json();
-      // Remove duplicates based on step number and title
-      const uniqueSteps = data.filter((step, index, self) => 
+      const uniqueSteps = data.filter((step, index, self) =>
         index === self.findIndex(s => s.step === step.step && s.title === step.title)
       );
       setSteps(uniqueSteps);
+      setError(null);
     } catch (error) {
       console.error('Error fetching process:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -592,16 +689,32 @@ const Process = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
             <p className="text-gray-400 mt-4">Загрузка процесса...</p>
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-white font-semibold mb-2">Ошибка загрузки</h3>
+            <p className="text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={fetchProcess}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-full transition-colors"
+            >
+              Попробовать снова
+            </button>
+          </div>
+        ) : steps.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">Информация о процессе временно не доступна</p>
+          </div>
         ) : (
           <div className="max-w-4xl mx-auto">
             {steps.map((step, index) => {
               const IconComponent = iconMap[step.icon] || MessageSquare;
               return (
-                <div key={step.id} className="flex items-center mb-12 last:mb-0">
-                  <div className="flex-shrink-0 w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mr-8">
+                <div key={step.id} className="flex items-start mb-12 last:mb-0 relative">
+                  <div className="flex-shrink-0 w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mr-8 z-10">
                     <IconComponent className="w-8 h-8 text-black" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 pt-3">
                     <div className="flex items-center mb-2">
                       <span className="text-yellow-400 font-bold text-lg mr-4">
                         {step.step.toString().padStart(2, '0')}
@@ -611,7 +724,7 @@ const Process = () => {
                     <p className="text-gray-400">{step.description}</p>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className="ml-8 h-12 w-px bg-gray-700"></div>
+                    <div className="absolute left-8 top-16 w-px h-12 bg-gray-700"></div>
                   )}
                 </div>
               );
@@ -628,6 +741,7 @@ const Testimonials = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchTestimonials();
@@ -637,28 +751,30 @@ const Testimonials = () => {
   const fetchTestimonials = async () => {
     try {
       const response = await fetch(`${API}/testimonials`);
+      if (!response.ok) throw new Error('Не удалось загрузить отзывы');
       const data = await response.json();
-      // Remove duplicates based on name and text
-      const uniqueTestimonials = data.filter((testimonial, index, self) => 
+      const uniqueTestimonials = data.filter((testimonial, index, self) =>
         index === self.findIndex(t => t.name === testimonial.name && t.text === testimonial.text)
       );
       setTestimonials(uniqueTestimonials);
     } catch (error) {
       console.error('Error fetching testimonials:', error);
+      setError(error.message);
     }
   };
 
   const fetchFaqs = async () => {
     try {
       const response = await fetch(`${API}/faqs`);
+      if (!response.ok) throw new Error('Не удалось загрузить FAQ');
       const data = await response.json();
-      // Remove duplicates based on question
-      const uniqueFaqs = data.filter((faq, index, self) => 
+      const uniqueFaqs = data.filter((faq, index, self) =>
         index === self.findIndex(f => f.question === faq.question)
       );
       setFaqs(uniqueFaqs);
     } catch (error) {
       console.error('Error fetching FAQs:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -682,44 +798,63 @@ const Testimonials = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
             <p className="text-gray-400 mt-4">Загрузка отзывов...</p>
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-white font-semibold mb-2">Ошибка загрузки</h3>
+            <p className="text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={() => {
+                fetchTestimonials();
+                fetchFaqs();
+              }}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-full transition-colors"
+            >
+              Попробовать снова
+            </button>
+          </div>
         ) : (
           <>
-            <div className="grid md:grid-cols-3 gap-8 mb-20">
-              {testimonials.map(testimonial => (
-                <div key={testimonial.id} className="bg-black p-8 rounded-lg">
-                  <div className="flex items-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-5 h-5 ${
-                          i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-gray-300 mb-6 italic">"{testimonial.text}"</p>
-                  <div>
-                    <p className="text-white font-semibold">{testimonial.name}</p>
-                    <p className="text-gray-400 text-sm">{testimonial.role}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* FAQ Section */}
-            <div className="max-w-3xl mx-auto">
-              <h3 className="text-3xl font-bold text-white mb-8 text-center">
-                Часто задаваемые <span className="text-yellow-400">вопросы</span>
-              </h3>
-              <div className="space-y-4">
-                {faqs.map(faq => (
-                  <div key={faq.id} className="bg-black p-6 rounded-lg">
-                    <h4 className="text-white font-semibold mb-3">{faq.question}</h4>
-                    <p className="text-gray-400">{faq.answer}</p>
+            {testimonials.length > 0 && (
+              <div className="grid md:grid-cols-3 gap-8 mb-20">
+                {testimonials.map(testimonial => (
+                  <div key={testimonial.id} className="bg-black p-8 rounded-lg transition-all duration-300 hover:bg-gray-800">
+                    <div className="flex items-center mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-5 h-5 ${
+                            i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-gray-300 mb-6 italic">"{testimonial.text}"</p>
+                    <div>
+                      <p className="text-white font-semibold">{testimonial.name}</p>
+                      <p className="text-gray-400 text-sm">{testimonial.role}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
+
+            {/* FAQ Section */}
+            {faqs.length > 0 && (
+              <div className="max-w-3xl mx-auto">
+                <h3 className="text-3xl font-bold text-white mb-8 text-center">
+                  Часто задаваемые <span className="text-yellow-400">вопросы</span>
+                </h3>
+                <div className="space-y-4">
+                  {faqs.map(faq => (
+                    <div key={faq.id} className="bg-black p-6 rounded-lg transition-all duration-300 hover:bg-gray-900">
+                      <h4 className="text-white font-semibold mb-3">{faq.question}</h4>
+                      <p className="text-gray-400">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -737,31 +872,44 @@ const Contact = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        setSubmitted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+    setError(null);
+
     try {
       const response = await fetch(`${API}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({ name: '', phone: '', email: '', message: '' });
-      }
+
+      if (!response.ok) throw new Error('Не удалось отправить заявку');
+
+      setSubmitted(true);
+      setFormData({ name: '', phone: '', email: '', message: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -829,13 +977,19 @@ const Contact = () => {
           <div>
             <h3 className="text-2xl font-bold text-white mb-8">Оставить заявку</h3>
             {submitted ? (
-              <div className="bg-green-900 border border-green-500 p-6 rounded-lg text-center">
+              <div className="bg-green-900 border border-green-500 p-6 rounded-lg text-center animate-fadeIn">
                 <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
                 <h4 className="text-white font-semibold mb-2">Спасибо за обращение!</h4>
                 <p className="text-gray-300">Мы свяжемся с вами в ближайшее время.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <div className="p-4 bg-red-900/50 border border-red-500 rounded-lg flex items-center space-x-2">
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <p className="text-red-200">{error}</p>
+                  </div>
+                )}
                 <div>
                   <input
                     type="text"
@@ -844,7 +998,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="Ваше имя"
                     required
-                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all"
                   />
                 </div>
                 <div>
@@ -855,7 +1009,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="Телефон"
                     required
-                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all"
                   />
                 </div>
                 <div>
@@ -866,7 +1020,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="Email"
                     required
-                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all"
                   />
                 </div>
                 <div>
@@ -877,13 +1031,13 @@ const Contact = () => {
                     placeholder="Расскажите о вашем проекте..."
                     rows="5"
                     required
-                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full p-4 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all resize-none"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-600 text-black font-semibold py-4 px-8 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-semibold py-4 px-8 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
